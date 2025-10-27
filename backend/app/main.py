@@ -9,6 +9,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.router import api
 from app.core import db
 from app.core.config import get_settings
 from app.core.errors import install_handlers
@@ -47,6 +48,7 @@ def create_app() -> FastAPI:
         return response
 
     install_handlers(app)
+    app.include_router(api)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:
