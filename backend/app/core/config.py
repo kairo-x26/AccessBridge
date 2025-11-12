@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     access_token_minutes: int = 30
     mfa_issuer: str = "AccessBridge AI"
     require_mfa: bool = False
+    field_encryption_key: str | None = None
 
     # AI
     llm_provider: Literal["deterministic", "anthropic"] = "deterministic"
