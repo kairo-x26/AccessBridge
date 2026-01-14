@@ -9,7 +9,10 @@ from app.core import db
 
 
 @pytest.fixture()
-def database(tmp_path) -> Iterator[None]:
+def database(tmp_path, monkeypatch) -> Iterator[None]:
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "storage_dir", tmp_path / "documents")
     db.configure(f"sqlite:///{tmp_path / 'test.db'}")
     from app import models  # noqa: F401  (register mappers)
 

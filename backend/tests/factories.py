@@ -49,3 +49,25 @@ def make_user(org_id: str, role: str, email: str | None = None) -> Actor:
         )
         s.commit()
         return Actor(u.id, org_id, role, email)
+
+
+def advance(referral_id: str, *targets: str) -> None:
+    """Move a referral along the route with valid evidence, bypassing UI flows."""
+    from app.domain.state_machine import ACCEPTED_EVIDENCE, Status
+    from app.models import Referral
+    from app.services import referrals
+
+    with db.session_factory()() as s:
+        r = s.get(Referral, referral_id)
+        for t in targets:
+            accepted = ACCEPTED_EVIDENCE[Status(t)]
+            referrals.transition(
+                s,
+                r,
+                t,
+                actor="system:test",
+                evidence_type=sorted(accepted)[0].value if accepted else None,
+                evidence_reference="test-evidence" if accepted else None,
+                reason="test",
+            )
+        s.commit()
