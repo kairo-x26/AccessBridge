@@ -43,7 +43,7 @@ def referral_letter(
     insurance: str | None = "Medicaid — Plan ID MCD-448812",
     member_id: str | None = "MBR-55120934",
     clinician: str = "Dr. Amara Okafor",
-    npi: str | None = "1457382910",
+    npi: str | None = "1457382913",
     include_diagnosis: bool = True,
     extra: str = "",
 ) -> bytes:
