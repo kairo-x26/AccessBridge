@@ -212,11 +212,11 @@ def _match_provider(
 ) -> ExternalProvider | None:
     q = select(ExternalProvider).where(ExternalProvider.organization_id == organization_id)
     if record.provider_reference:
-        found = session.scalar(
+        # A stated identifier that matches nothing is not overridden by a look-alike name;
+        # the coordinator picks the destination instead.
+        return session.scalar(
             q.where(ExternalProvider.network_reference == record.provider_reference)
         )
-        if found:
-            return found
     if record.provider_name:
         return session.scalar(q.where(ExternalProvider.name == record.provider_name))
     return None
