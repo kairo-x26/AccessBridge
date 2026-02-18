@@ -1,5 +1,6 @@
 """Import every model so SQLAlchemy registers all mappers."""
 
+from app.models.agents import AgentAction, AgentRun, Approval, ExchangeTransmission, Job, LLMUsage
 from app.models.audit import AuditEvent
 from app.models.intelligence import (
     ChecklistTemplate,
@@ -21,6 +22,12 @@ from app.models.referral import (
 from app.models.user import Invitation, User
 
 __all__ = [
+    "AgentAction",
+    "AgentRun",
+    "Approval",
+    "ExchangeTransmission",
+    "Job",
+    "LLMUsage",
     "AuditEvent",
     "ChecklistTemplate",
     "ExtractedField",
