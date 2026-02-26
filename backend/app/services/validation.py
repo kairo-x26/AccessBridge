@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from sqlalchemy import select
@@ -26,6 +27,8 @@ from app.services import audit, document_ai, storage, tasks
 from app.services.referrals import SUPPORTED_SPECIALTIES
 
 log = logging.getLogger(__name__)
+# Optional extra extractor (e.g. model-assisted); its output is grounded like any other.
+Assist = Callable[[str], list[document_ai.Candidate]]
 
 
 @dataclass
@@ -60,7 +63,7 @@ def process_document(
     doc: ReferralDocument,
     *,
     actor: str,
-    extra_candidates: list[document_ai.Candidate] | None = None,
+    assist: Assist | None = None,
 ) -> int:
     """Extract text, classify and store grounded candidates. Returns fields stored."""
     data = storage.get(doc.storage_uri, doc.organization_id)
@@ -71,7 +74,9 @@ def process_document(
         return 0
     doc.text_content = text
     doc.doc_type, doc.doc_type_confidence = document_ai.classify(text, doc.filename)
-    candidates = document_ai.extract_fields(text) + list(extra_candidates or [])
+    candidates = document_ai.extract_fields(text)
+    if assist is not None:
+        candidates += assist(text)
     stored = 0
     seen: set[tuple[str, int, int]] = set()
     for c in candidates:
@@ -295,7 +300,7 @@ def analyze(
     referral: Referral,
     *,
     actor: str,
-    extra: dict[str, list[document_ai.Candidate]] | None = None,
+    assist: Assist | None = None,
 ) -> AnalysisSummary:
     processed = found = 0
     for doc in session.scalars(
@@ -304,9 +309,7 @@ def analyze(
             ReferralDocument.extraction_status == "pending",
         )
     ):
-        found += process_document(
-            session, doc, actor=actor, extra_candidates=(extra or {}).get(doc.id)
-        )
+        found += process_document(session, doc, actor=actor, assist=assist)
         processed += 1
     summary = sync_issues(session, referral, actor=actor)
     summary.documents_processed, summary.fields_found = processed, found

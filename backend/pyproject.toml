@@ -19,7 +19,9 @@ dependencies = [
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.2"]
-anthropic = ["anthropic>=0.40"]
+anthropic = [
+    "anthropic>=0.40",
+]
 
 [dependency-groups]
 dev = [

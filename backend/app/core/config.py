@@ -29,7 +29,10 @@ class Settings(BaseSettings):
 
     # AI
     llm_provider: Literal["deterministic", "anthropic"] = "deterministic"
-    llm_model: str = "claude-sonnet-5-5"
+    llm_model: str = "claude-opus-5-5"
+    llm_effort: str = "medium"
+    agent_max_external_actions: int = 1
+    follow_up_after_days: int = 5
     anthropic_api_key: str | None = None
     llm_max_tokens_per_run: int = 20_000
     agent_max_tool_calls: int = 8
