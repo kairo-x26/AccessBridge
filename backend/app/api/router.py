@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    agents,
     audit,
     auth,
     integrations,
@@ -22,5 +23,6 @@ for r in (
     providers.router,
     integrations.router,
     review.router,
+    agents.router,
 ):
     api.include_router(r)

@@ -219,9 +219,20 @@ def approve_package(
     r = get_scoped(session, Referral, referral_id, principal.organization_id)
     reviewer = session.get(User, principal.user_id)
     assert reviewer is not None
-    return package.approve(
+    pkg = package.approve(
         session, r, reviewer, note=body.note, expected_version=body.expected_version
     )
+    # The intake agent takes it from here: it proposes transmission for staff approval.
+    from app.agents import orchestrator
+
+    orchestrator.start_run(
+        session,
+        r,
+        workflow="intake",
+        trigger=principal.actor,
+        idempotency_key=f"after-approval:{pkg.id}",
+    )
+    return pkg
 
 
 @router.get("/referrals/{referral_id}/packages", response_model=list[PackageOut])

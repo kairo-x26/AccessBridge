@@ -27,3 +27,11 @@ def client(database) -> Iterator[TestClient]:
 
     with TestClient(create_app()) as c:
         yield c
+
+
+@pytest.fixture(autouse=True)
+def _reset_simulated_receiver():
+    from app.integrations import exchange
+
+    exchange.receiver = exchange.SimulatedReceiver()
+    yield
