@@ -2,6 +2,7 @@
 
 from app.models.agents import AgentAction, AgentRun, Approval, ExchangeTransmission, Job, LLMUsage
 from app.models.audit import AuditEvent
+from app.models.communication import Communication, MessageTemplate, Notification
 from app.models.intelligence import (
     ChecklistTemplate,
     ExtractedField,
@@ -28,8 +29,11 @@ __all__ = [
     "ExchangeTransmission",
     "Job",
     "LLMUsage",
+    "MessageTemplate",
+    "Notification",
     "AuditEvent",
     "ChecklistTemplate",
+    "Communication",
     "ExtractedField",
     "ReferralPackage",
     "ValidationIssue",
