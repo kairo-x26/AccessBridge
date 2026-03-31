@@ -45,6 +45,11 @@ class ValidationFailed(DomainError):
     code = "validation_failed"
 
 
+class ServiceUnavailable(DomainError):
+    status_code = 503
+    code = "service_unavailable"
+
+
 class RateLimited(DomainError):
     status_code = 429
     code = "rate_limited"
