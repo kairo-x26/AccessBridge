@@ -66,9 +66,60 @@ class StateSummary:
     appointment_passed: bool
     open_task_titles: list[str]
     resolved_follow_ups: int
+    confirmed_reply_id: str | None = None
+    consult_note_id: str | None = None
+    consult_identity_mismatch: bool = False
 
     def to_prompt(self) -> str:
         return json.dumps(self.__dict__, sort_keys=True)
+
+
+def _consult(session: Session, r: Referral) -> tuple[str | None, bool]:
+    """Latest analyzed consult note and whether its patient details contradict the record."""
+    from app.models import ExtractedField
+    from app.services import document_ai
+
+    doc = session.scalar(
+        select(ReferralDocument)
+        .where(ReferralDocument.referral_id == r.id, ReferralDocument.doc_type == "consult_note")
+        .order_by(ReferralDocument.created_at.desc())
+    )
+    if doc is None:
+        return None, False
+    mismatch = False
+    for f in session.scalars(
+        select(ExtractedField).where(
+            ExtractedField.document_id == doc.id,
+            ExtractedField.status != "rejected",
+            ExtractedField.name.in_(("birth_date", "patient_name")),
+        )
+    ):
+        value = f.effective_value or ""
+        if f.name == "birth_date" and r.patient.birth_date:
+            mismatch |= document_ai.normalize("birth_date", value) != document_ai.normalize(
+                "birth_date", r.patient.birth_date
+            )
+        if f.name == "patient_name":
+            got = set(document_ai.normalize("patient_name", value).replace(",", " ").split())
+            want = set(document_ai.normalize("patient_name", r.patient.display_name).split())
+            mismatch |= not want.issubset(got)
+    return doc.id, mismatch
+
+
+def _confirmed_reply(session: Session, r: Referral) -> str | None:
+    from app.models import Communication
+
+    return session.scalar(
+        select(Communication.id)
+        .where(
+            Communication.referral_id == r.id,
+            Communication.direction == "inbound",
+            Communication.classification == "confirmed",
+            Communication.escalated.is_(False),
+            Communication.resolved_at.is_(None),
+        )
+        .order_by(Communication.created_at.desc())
+    )
 
 
 def summarize(session: Session, r: Referral) -> StateSummary:
@@ -82,7 +133,11 @@ def summarize(session: Session, r: Referral) -> StateSummary:
         .order_by(ReferralPackage.version.desc())
     )
     appt = _aware(r.appointment_at)
+    consult_id, consult_mismatch = _consult(session, r)
     return StateSummary(
+        confirmed_reply_id=_confirmed_reply(session, r),
+        consult_note_id=consult_id,
+        consult_identity_mismatch=consult_mismatch,
         referral_id=r.id,
         status=r.status,
         specialty=r.specialty,
@@ -190,7 +245,25 @@ def rules_plan(workflow: str, st: StateSummary) -> list[Proposal]:
                         0.94,
                     )
                 )
-        if status == S.ACKNOWLEDGED and st.days_in_status >= threshold:
+        if status == S.ACKNOWLEDGED and st.confirmed_reply_id:
+            out.append(
+                Proposal(
+                    "record_scheduled",
+                    {"communication_id": st.confirmed_reply_id},
+                    "Patient replied that they have an appointment.",
+                    0.8,
+                )
+            )
+        elif status == S.ACKNOWLEDGED and st.days_in_status >= threshold:
+            out.append(
+                Proposal(
+                    "send_patient_message",
+                    {"template_key": "schedule_prompt"},
+                    "Specialist acknowledged the referral but no appointment is "
+                    "recorded; remind the patient how to schedule.",
+                    0.9,
+                )
+            )
             out.append(
                 Proposal(
                     "create_coordinator_task",
@@ -202,9 +275,54 @@ def rules_plan(workflow: str, st: StateSummary) -> list[Proposal]:
         if status == S.SCHEDULED and st.appointment_passed:
             out.append(
                 Proposal(
+                    "send_patient_message",
+                    {"template_key": "appointment_check"},
+                    "Appointment date has passed; ask whether the visit happened.",
+                    0.85,
+                )
+            )
+            out.append(
+                Proposal(
                     "create_coordinator_task",
                     {"kind": "follow_up", "title_key": "confirm_completion"},
                     "Appointment date has passed without completion evidence.",
+                    0.9,
+                )
+            )
+    elif workflow == "completion":
+        if st.pending_documents:
+            out.append(
+                Proposal(
+                    "run_document_analysis",
+                    {},
+                    f"{st.pending_documents} new document(s) to read.",
+                    0.99,
+                )
+            )
+        elif st.consult_note_id and st.consult_identity_mismatch:
+            out.append(
+                Proposal(
+                    "create_coordinator_task",
+                    {"kind": "exception", "title_key": "consult_identity", "priority": "high"},
+                    "Consult note patient details don't match the referral.",
+                    0.9,
+                )
+            )
+        elif st.consult_note_id and status == S.SCHEDULED:
+            out.append(
+                Proposal(
+                    "propose_completion",
+                    {"document_id": st.consult_note_id},
+                    "Specialist consult note received for this referral.",
+                    0.9,
+                )
+            )
+        elif st.consult_note_id and status in (S.SUBMITTED, S.ACKNOWLEDGED):
+            out.append(
+                Proposal(
+                    "create_coordinator_task",
+                    {"kind": "follow_up", "title_key": "consult_note_early"},
+                    "Consult note arrived before an appointment was recorded.",
                     0.9,
                 )
             )

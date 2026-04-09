@@ -21,7 +21,7 @@ from app.core.config import get_settings
 from app.core.db import utcnow
 from app.core.errors import DomainError, ValidationFailed
 from app.domain.state_machine import Status, allowed_targets
-from app.integrations import exchange
+from app.integrations import exchange, sms
 from app.models import AgentAction, AgentRun, Approval, Job, Organization, Referral
 from app.services import audit, referrals, tasks
 from app.workers import queue
@@ -242,7 +242,7 @@ def execute_action(
     try:
         with session.begin_nested():
             result = tool.handler(ctx, args)
-    except exchange.TransientSendError as exc:
+    except (exchange.TransientSendError, sms.TransientMessagingError) as exc:
         action.status = "approved"  # remains executable; the job layer retries
         action.error = str(exc)
         raise queue.RetryableError(str(exc)) from exc

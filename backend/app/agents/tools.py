@@ -51,6 +51,8 @@ class CreateTaskArgs(Args):
         "request_records",
         "patient_needs_help",
         "resolve_exception",
+        "consult_note_early",
+        "consult_identity",
     ]
     priority: Literal["low", "normal", "high"] = "normal"
 
@@ -58,6 +60,18 @@ class CreateTaskArgs(Args):
 class TransmitArgs(Args):
     package_id: str = Field(max_length=40)
     provider_id: str = Field(max_length=40)
+
+
+class SendMessageArgs(Args):
+    template_key: Literal["schedule_prompt", "appointment_check"]
+
+
+class RecordScheduledArgs(Args):
+    communication_id: str = Field(max_length=40)
+
+
+class ProposeCompletionArgs(Args):
+    document_id: str = Field(max_length=40)
 
 
 class FlagExceptionArgs(Args):
@@ -74,6 +88,8 @@ TASK_TITLES = {
     "request_records": "Request missing records from the referring clinic",
     "patient_needs_help": "Patient asked for help — contact them",
     "resolve_exception": "Resolve referral exception",
+    "consult_note_early": "Consult note received — record the appointment, then complete",
+    "consult_identity": "Consult note may belong to another patient — review it",
 }
 EXCEPTION_REASONS = {
     "transmission_failed": "Package transmission failed. Check the destination and resend.",
@@ -181,6 +197,64 @@ def _flag_exception(ctx: ToolContext, a: FlagExceptionArgs) -> dict[str, Any]:
     return {"event_id": ev.id}
 
 
+def _send_message(ctx: ToolContext, a: SendMessageArgs) -> dict[str, Any]:
+    from app.services import messaging
+
+    msg = messaging.send(
+        ctx.session,
+        ctx.referral,
+        a.template_key,
+        actor=ctx.actor,
+        idempotency_key=ctx.action.idempotency_key,
+        action_id=ctx.action.id,
+    )
+    return {
+        "communication_id": msg.id,
+        "status": msg.status,
+        "external_message_sent": msg.status == "sent",
+    }
+
+
+def _record_scheduled(ctx: ToolContext, a: RecordScheduledArgs) -> dict[str, Any]:
+    from app.models import Communication
+
+    msg = get_scoped(ctx.session, Communication, a.communication_id, ctx.organization_id)
+    if (
+        msg.referral_id != ctx.referral.id
+        or msg.direction != "inbound"
+        or msg.classification != "confirmed"
+        or msg.escalated
+    ):
+        raise NotFound("No confirming reply for this referral")
+    ev = referrals.transition(
+        ctx.session,
+        ctx.referral,
+        S.SCHEDULED,
+        actor=ctx.actor,
+        evidence_type=Evidence.PATIENT_CONFIRMATION.value,
+        evidence_reference=f"message:{msg.id}",
+    )
+    msg.resolved_at, msg.resolved_by = ev.timestamp, ctx.actor
+    return {"event_id": ev.id}
+
+
+def _propose_completion(ctx: ToolContext, a: ProposeCompletionArgs) -> dict[str, Any]:
+    from app.models import ReferralDocument
+
+    doc = get_scoped(ctx.session, ReferralDocument, a.document_id, ctx.organization_id)
+    if doc.referral_id != ctx.referral.id or doc.doc_type != "consult_note":
+        raise NotFound("No consult note for this referral")
+    ev = referrals.transition(
+        ctx.session,
+        ctx.referral,
+        S.COMPLETED,
+        actor=ctx.actor,
+        evidence_type=Evidence.CONSULT_NOTE.value,
+        evidence_reference=f"document:{doc.id}:sha256:{doc.checksum[:16]}",
+    )
+    return {"event_id": ev.id}
+
+
 OPEN = frozenset(set(Status) - {S.COMPLETED, S.DECLINED, S.CANCELLED})
 
 REGISTRY: dict[str, Tool] = {
@@ -192,8 +266,37 @@ REGISTRY: dict[str, Tool] = {
             NoArgs,
             external=False,
             permission=Perm.REFERRAL_EDIT,
-            allowed_states=frozenset({S.NEEDS_REVIEW, S.EXCEPTION}),
+            allowed_states=OPEN,
             handler=_analyze,
+        ),
+        Tool(
+            "send_patient_message",
+            "Text the patient an approved administrative message.",
+            SendMessageArgs,
+            external=True,
+            permission=Perm.MESSAGE_SEND,
+            allowed_states=frozenset({S.SUBMITTED, S.ACKNOWLEDGED, S.SCHEDULED}),
+            handler=_send_message,
+        ),
+        Tool(
+            "record_scheduled",
+            "Record the appointment the patient confirmed by text.",
+            RecordScheduledArgs,
+            external=False,
+            permission=Perm.REFERRAL_TRANSITION,
+            allowed_states=frozenset({S.ACKNOWLEDGED}),
+            handler=_record_scheduled,
+            always_requires_approval=True,
+        ),
+        Tool(
+            "propose_completion",
+            "Mark care completed based on the specialist's consult note.",
+            ProposeCompletionArgs,
+            external=False,
+            permission=Perm.OUTCOME_RECORD,
+            allowed_states=frozenset({S.SCHEDULED}),
+            handler=_propose_completion,
+            always_requires_approval=True,
         ),
         Tool(
             "create_coordinator_task",

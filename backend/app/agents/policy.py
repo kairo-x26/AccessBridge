@@ -24,8 +24,12 @@ WORKFLOW_TOOLS: dict[str, frozenset[str]] = {
             "transmit_referral_package",
         }
     ),
-    "follow_up": frozenset({"create_coordinator_task", "flag_exception", "send_patient_message"}),
-    "completion": frozenset({"create_coordinator_task", "propose_completion"}),
+    "follow_up": frozenset(
+        {"create_coordinator_task", "flag_exception", "send_patient_message", "record_scheduled"}
+    ),
+    "completion": frozenset(
+        {"run_document_analysis", "create_coordinator_task", "propose_completion", "flag_exception"}
+    ),
 }
 
 Decision = Literal["auto", "approval_required", "denied"]
@@ -82,11 +86,20 @@ def evaluate(
         return PolicyDecision(
             "approval_required", "This action always needs staff approval.", tool, args
         )
-    if tool.external and tool_name not in preauthorized:
+    if tool_name == "send_patient_message":
+        templates = set(org_config.get("preauthorized_templates") or [])
+        if tool_name in preauthorized and getattr(args, "template_key", None) in templates:
+            return PolicyDecision(
+                "auto",
+                "Organization pre-authorized this reminder for low-risk follow-up.",
+                tool,
+                args,
+            )
+    if tool.external:
         return PolicyDecision(
             "approval_required",
             "External actions need approval unless your organization has "
-            "pre-authorized this workflow.",
+            "pre-authorized this exact low-risk reminder.",
             tool,
             args,
         )

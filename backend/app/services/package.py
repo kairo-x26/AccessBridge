@@ -20,7 +20,7 @@ from app.models import (
     User,
     ValidationIssue,
 )
-from app.services import audit, referrals, validation
+from app.services import audit, referrals, tasks, validation
 
 
 def contents(session: Session, referral: Referral) -> dict[str, Any]:
@@ -142,6 +142,13 @@ def approve(
         operation="package.approve",
         resource_ref=pkg.id,
         details={"referral_id": referral.id, "version": version},
+    )
+    tasks.resolve_by_key(
+        session,
+        referral.organization_id,
+        f"agent:{referral.id}:review_package",
+        actor=f"user:{reviewer.id}",
+        resolution="Package approved",
     )
     return pkg
 
