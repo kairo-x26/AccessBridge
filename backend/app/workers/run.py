@@ -27,6 +27,7 @@ SWEEPS = {
 
 def register_handlers() -> None:
     import app.agents.orchestrator  # noqa: F401
+    import app.services.notifications  # noqa: F401
 
 
 def schedule_sweeps(now: datetime | None = None) -> None:

@@ -9,11 +9,12 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.router import api
+from app.api.router import api, dev_api
 from app.core import db
 from app.core.config import get_settings
 from app.core.errors import install_handlers
 from app.core.logging import request_id_var, setup_logging
+from app.services import notifications  # noqa: F401  (registers transition hooks)
 
 
 def create_app() -> FastAPI:
@@ -49,6 +50,8 @@ def create_app() -> FastAPI:
 
     install_handlers(app)
     app.include_router(api)
+    if settings.environment != "production":
+        app.include_router(dev_api)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

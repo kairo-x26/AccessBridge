@@ -4,6 +4,8 @@ from app.api.v1 import (
     agents,
     audit,
     auth,
+    communications,
+    dev,
     integrations,
     providers,
     referrals,
@@ -24,5 +26,10 @@ for r in (
     integrations.router,
     review.router,
     agents.router,
+    communications.router,
+    communications.webhooks,
 ):
     api.include_router(r)
+
+dev_api = APIRouter(prefix="/v1")
+dev_api.include_router(dev.router)

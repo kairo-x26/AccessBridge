@@ -70,3 +70,47 @@ def ready_referral(client, endpoint="sim://ok"):
     pkg = approve_package(client, coord, rid)
     queue.run_pending()  # intake run proposes transmission
     return org, admin, coord, prov, rid, pkg
+
+
+def adopt_templates(client, org, admin):
+    """Save the built-in templates and have a second administrator review them."""
+    from app.domain.templates import BUILTIN
+
+    reviewer = make_user(org, "admin", email=f"reviewer.{org[-6:]}@example.org")
+    for (key, lang), body in BUILTIN.items():
+        t = client.put(
+            f"/v1/templates/{key}/{lang}", headers=admin.headers(), json={"body": body}
+        ).json()
+        r = client.post(f"/v1/templates/{t['id']}/review", headers=reviewer.headers())
+        assert r.status_code == 200, r.text
+    return reviewer
+
+
+def consent(client, coord, rid, **kw):
+    pid = client.get(f"/v1/referrals/{rid}", headers=coord.headers()).json()["patient"]["id"]
+    body = {"consent_reference": "consent-form-2026-01", "contact_verified": True, **kw}
+    r = client.patch(f"/v1/patients/{pid}/contact", headers=coord.headers(), json=body)
+    assert r.status_code == 200, r.text
+    return pid
+
+
+def submitted_referral(client, endpoint="sim://ok"):
+    org, admin, coord, prov, rid, pkg = ready_referral(client, endpoint)
+    a = client.get("/v1/approvals", headers=coord.headers()).json()[0]
+    client.post(
+        f"/v1/approvals/{a['id']}/decision", headers=coord.headers(), json={"decision": "approved"}
+    )
+    queue.run_pending()
+    return org, admin, coord, prov, rid
+
+
+def acknowledged_referral(client):
+    from app.integrations import simulated_ehr
+
+    org, admin, coord, prov, rid = submitted_referral(client)
+    client.post(
+        "/v1/integrations/fhir/task-updates",
+        headers=coord.headers(),
+        json={"resources": [simulated_ehr.task_update("sr-1", "accepted")]},
+    )
+    return org, admin, coord, prov, rid

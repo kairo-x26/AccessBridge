@@ -514,13 +514,24 @@ async def upload_document(
         raise ValidationFailed(
             "Upload a PDF, text, PNG or JPEG file.", details={"content_type": ctype}
         )
-    doc, _ = referrals.add_document(
+    doc, created = referrals.add_document(
         session,
         r,
         DocumentIn(file.filename or "upload", ctype, data),
         actor=principal.actor,
         source_system="upload",
     )
+    if created and r.status in ("submitted", "acknowledged", "scheduled"):
+        # Specialist paperwork arriving later in the journey: let the completion agent look.
+        from app.agents import orchestrator
+
+        orchestrator.start_run(
+            session,
+            r,
+            workflow="completion",
+            trigger=principal.actor,
+            idempotency_key=f"document:{doc.id}",
+        )
     return doc
 
 

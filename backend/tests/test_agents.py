@@ -388,3 +388,12 @@ def test_usage_is_metered_and_budget_enforced(client, monkeypatch):
         calls = s.query(LLMUsage).filter(LLMUsage.run_id == run["id"]).count()
     assert 1 <= calls <= 2  # budget (150 tokens) stops further calls after the first
     assert run["input_tokens"] + run["output_tokens"] >= 120
+
+
+def test_package_approval_closes_review_task(client):
+    _, _, coord, _, rid, _ = flows.ready_referral(client)
+    open_titles = [
+        t["title"]
+        for t in client.get(f"/v1/tasks?referral_id={rid}", headers=coord.headers()).json()["items"]
+    ]
+    assert "Review and approve the referral package" not in open_titles
