@@ -9,6 +9,7 @@ from app.api.v1 import (
     integrations,
     providers,
     referrals,
+    reports,
     review,
     tasks,
     users,
@@ -28,6 +29,7 @@ for r in (
     agents.router,
     communications.router,
     communications.webhooks,
+    reports.router,
 ):
     api.include_router(r)
 
