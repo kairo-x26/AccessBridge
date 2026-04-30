@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import Conflict, InvalidTransition
-from app.domain.state_machine import TERMINAL, Status, check_transition
+from app.domain.state_machine import ROUTE, TERMINAL, Status, check_transition
 from app.models import (
     ExternalProvider,
     PatientReference,
@@ -148,6 +148,8 @@ def transition(
     )
     session.add(event)
     referral.status = target.value
+    if target in ROUTE:
+        referral.progress_status = target.value
     referral.status_changed_at = utcnow()
     referral.version += 1
     referral.exception_reason = reason if target == Status.EXCEPTION else None

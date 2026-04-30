@@ -71,7 +71,11 @@ def readiness(session: Session, referral: Referral) -> list[str]:
     """Reasons the package can't be approved yet; empty when ready."""
     reasons = []
     if Status(referral.status) != Status.NEEDS_REVIEW:
-        reasons.append(f"Referral is {referral.status}; only referrals in review can be approved.")
+        reasons.append(
+            "Move this referral back to review before approving the package."
+            if referral.status == "exception"
+            else "The package was already approved for this referral."
+        )
     blocking = session.scalars(
         select(ValidationIssue).where(
             ValidationIssue.referral_id == referral.id,

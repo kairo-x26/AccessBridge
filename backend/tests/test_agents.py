@@ -397,3 +397,19 @@ def test_package_approval_closes_review_task(client):
         for t in client.get(f"/v1/tasks?referral_id={rid}", headers=coord.headers()).json()["items"]
     ]
     assert "Review and approve the referral package" not in open_titles
+
+
+def test_failed_transmission_creates_one_plain_language_task(client):
+    _, _, coord, _, rid, _ = flows.ready_referral(client, endpoint="sim://down")
+    a = _pending(client, coord.headers())[0]
+    client.post(
+        f"/v1/approvals/{a['id']}/decision", headers=coord.headers(), json={"decision": "approved"}
+    )
+    now = utcnow()
+    for i in range(8):
+        queue.run_pending(now=now + timedelta(hours=2 * i))
+    tasks = client.get(f"/v1/tasks?referral_id={rid}", headers=coord.headers()).json()["items"]
+    assert [t["title"] for t in tasks if t["kind"] == "exception"] == ["Resolve referral exception"]
+    run = client.get(f"/v1/agent-runs/{a['action']['run_id']}", headers=coord.headers()).json()
+    act = next(x for x in run["actions"] if x["tool"] == "transmit_referral_package")
+    assert act["status"] == "failed" and "Error" not in act["error"]

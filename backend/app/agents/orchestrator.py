@@ -401,12 +401,12 @@ def _job_execute(session: Session, job: Job) -> dict[str, Any]:
 
 
 @queue.on_dead("agent.execute_action")
-def _job_execute_dead(session: Session, job: Job, error: str) -> None:
+def _job_execute_dead(session: Session, job: Job, error: str) -> bool:
     action = session.get(AgentAction, job.payload["action_id"])
     if action is None or action.status == "succeeded":
-        return
+        return False
     action.status = "failed"
-    action.error = error[:1000]
+    action.error = _plain(error)
     referral = session.get(Referral, action.referral_id)
     if referral is not None and REGISTRY[action.tool].external:
         _external_failed(
@@ -415,15 +415,24 @@ def _job_execute_dead(session: Session, job: Job, error: str) -> None:
             f"agent:{action.run_id}",
             "receiving system unavailable after repeated attempts",
         )
+        return True  # the referral exception and its task tell people what to do
+    return False
+
+
+def _plain(error: str) -> str:
+    """Strip exception class names and tracebacks from errors shown to staff."""
+    first = error.strip().splitlines()[0] if error.strip() else "Unknown error"
+    return first.split(": ", 1)[1] if first.split(": ", 1)[0].endswith("Error") else first
 
 
 @queue.on_dead("agent.run")
-def _job_run_dead(session: Session, job: Job, error: str) -> None:
+def _job_run_dead(session: Session, job: Job, error: str) -> bool:
     run = session.get(AgentRun, job.payload["run_id"])
     if run is not None:
         run.status = "failed"
-        run.error = error[:1000]
+        run.error = _plain(error)
         run.finished_at = utcnow()
+    return False
 
 
 @queue.handler("sweep.escalation")

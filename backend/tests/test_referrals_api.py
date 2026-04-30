@@ -348,3 +348,14 @@ def test_assign_owner_with_version_check(client):
     assert again.status_code == 409
     mine = client.get("/v1/referrals?owner_id=me", headers=coord.headers()).json()
     assert mine["total"] == 1
+
+
+def test_progress_status_survives_leaving_the_route(client):
+    org = make_org()
+    coord = make_user(org, "coordinator")
+    rid = client.post(
+        "/v1/referrals/import", headers=coord.headers(), json=_bundle(_rosa())
+    ).json()["imported"][0]
+    advance(rid, "ready", "submitted", "exception")
+    row = client.get("/v1/referrals", headers=coord.headers()).json()["items"][0]
+    assert row["status"] == "exception" and row["progress_status"] == "submitted"

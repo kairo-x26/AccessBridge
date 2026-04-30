@@ -72,6 +72,9 @@ class Referral(TimestampMixin, Base):
     referring_clinician: Mapped[str | None] = mapped_column(String(200))
     provider_id: Mapped[str | None] = mapped_column(ForeignKey("external_providers.id"))
     status: Mapped[str] = mapped_column(String(20), default="imported")
+    # Furthest point reached on the route; kept when the referral leaves it (exception,
+    # declined, cancelled) so the UI can show where it branched off.
+    progress_status: Mapped[str] = mapped_column(String(20), default="imported")
     status_changed_at: Mapped[datetime] = mapped_column(default=utcnow)
     owner_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     package_approved_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))

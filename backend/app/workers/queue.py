@@ -30,7 +30,8 @@ from app.services import audit, tasks
 log = logging.getLogger(__name__)
 Handler = Callable[[Session, Job], dict[str, Any] | None]
 _handlers: dict[str, Handler] = {}
-DeadHook = Callable[[Session, Job, str], None]
+# A hook returns True when it already surfaced the failure to people (no generic task).
+DeadHook = Callable[[Session, Job, str], bool]
 _dead_hooks: dict[str, DeadHook] = {}
 
 
@@ -40,6 +41,14 @@ class RetryableError(Exception):
 
 class PermanentError(Exception):
     """Failure that retrying can't fix: the job is dead-lettered immediately."""
+
+
+JOB_NAMES = {
+    "agent.run": "An agent check",
+    "agent.execute_action": "An approved action",
+    "sweep.follow_up": "The follow-up sweep",
+    "sweep.escalation": "The task escalation sweep",
+}
 
 
 def handler(kind: str) -> Callable[[Handler], Handler]:
@@ -158,9 +167,10 @@ def _dead_letter(session: Session, job: Job, error: str) -> None:
         outcome="failed",
         details={"kind": job.kind, "attempts": job.attempts},
     )
+    handled = False
     if hook := _dead_hooks.get(job.kind):
-        hook(session, job, error)
-    if job.organization_id:
+        handled = hook(session, job, error)
+    if job.organization_id and not handled:
         tasks.ensure_task(
             session,
             organization_id=job.organization_id,
@@ -168,7 +178,8 @@ def _dead_letter(session: Session, job: Job, error: str) -> None:
             kind="exception",
             priority="high",
             title="Automated step failed and needs a person",
-            detail=f"Background step '{job.kind}' failed {job.attempts} times: {error[:300]}",
+            detail=f"{JOB_NAMES.get(job.kind, 'A background step')} failed after {job.attempts} "
+            "attempts. Operations can see the technical error under failed jobs.",
             created_by=f"system:job:{job.id}",
             dedupe_key=f"dead-job:{job.id}",
         )

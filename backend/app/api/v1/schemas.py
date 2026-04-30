@@ -97,6 +97,7 @@ class TaskOut(BaseModel):
 class ReferralSummary(BaseModel):
     id: str
     status: str
+    progress_status: str
     specialty: str
     priority_from_source: str
     patient_name: str

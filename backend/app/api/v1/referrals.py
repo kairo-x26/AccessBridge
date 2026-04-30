@@ -81,6 +81,7 @@ def summarize(r: Referral, open_tasks: int, owner_name: str | None) -> ReferralS
     return ReferralSummary(
         id=r.id,
         status=r.status,
+        progress_status=r.progress_status,
         specialty=r.specialty,
         priority_from_source=r.priority_from_source,
         patient_name=r.patient.display_name,
