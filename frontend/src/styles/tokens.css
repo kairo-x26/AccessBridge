@@ -1,0 +1,120 @@
+/*
+ * AccessBridge design tokens.
+ *
+ * Encoding rule used everywhere: violet + dashed = proposed by the agent, not yet verified;
+ * solid = verified by a person or backed by evidence. Teal is the route (progress), amber is
+ * an operational exception, red is reserved for failures and urgent escalations.
+ */
+:root {
+  color-scheme: light;
+
+  /* Base palette */
+  --paper: #f5f7f6;
+  --surface: #ffffff;
+  --surface-sunk: #eaeeec;
+  --ink: #18262f;
+  --ink-2: #3d4c55;
+  --ink-3: #5a6a73;
+  --line: #d3dbd8;
+  --line-strong: #a9b6b2;
+
+  --route: #0e6b66;
+  --route-soft: #dcefed;
+  --route-ink: #ffffff;
+  --agent: #5847b0;
+  --agent-soft: #ebe8f8;
+  --exception: #8f5600;
+  --exception-soft: #f8ecd7;
+  --verified: #2c7a3a;
+  --verified-soft: #e1f1e3;
+  --alert: #b3261e;
+  --alert-soft: #fbe5e2;
+  --closed: #6b7780;
+
+  --focus: #1f6fd1;
+
+  /* Type: Atkinson Hyperlegible Next, one family, weight carries hierarchy.
+     Modular scale 1.125 around a 15px working size for dense operational screens. */
+  --font: "Atkinson Hyperlegible Next Variable", "Atkinson Hyperlegible Next", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --fs-xs: 0.8125rem; /* 13 */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-md: 0.9375rem; /* 15 */
+  --fs-lg: 1.0625rem; /* 17 */
+  --fs-xl: 1.3125rem; /* 21 */
+  --fs-2xl: 1.6875rem; /* 27 */
+  --lh-tight: 1.2;
+  --lh-body: 1.5;
+
+  /* Space: 4px base */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* Shape: radius encodes nesting, not decoration. */
+  --r-control: 6px;
+  --r-panel: 10px;
+  --r-pill: 999px;
+
+  --rail-width: 88px;
+  --shadow-pop: 0 8px 28px rgb(24 38 47 / 0.16), 0 1px 3px rgb(24 38 47 / 0.12);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0f171c;
+    --surface: #162129;
+    --surface-sunk: #1d2a33;
+    --ink: #e4ecee;
+    --ink-2: #c3cfd3;
+    --ink-3: #93a3aa;
+    --line: #2b3b45;
+    --line-strong: #435661;
+    --route: #4fc1b8;
+    --route-soft: #143c3a;
+    --route-ink: #062220;
+    --agent: #a99bff;
+    --agent-soft: #29254a;
+    --exception: #e8a84a;
+    --exception-soft: #3a2b12;
+    --verified: #6fcb7e;
+    --verified-soft: #183420;
+    --alert: #ff8a80;
+    --alert-soft: #3f1d1a;
+    --closed: #8b979e;
+    --focus: #79b2ff;
+    --shadow-pop: 0 8px 28px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0f171c;
+  --surface: #162129;
+  --surface-sunk: #1d2a33;
+  --ink: #e4ecee;
+  --ink-2: #c3cfd3;
+  --ink-3: #93a3aa;
+  --line: #2b3b45;
+  --line-strong: #435661;
+  --route: #4fc1b8;
+  --route-soft: #143c3a;
+  --route-ink: #062220;
+  --agent: #a99bff;
+  --agent-soft: #29254a;
+  --exception: #e8a84a;
+  --exception-soft: #3a2b12;
+  --verified: #6fcb7e;
+  --verified-soft: #183420;
+  --alert: #ff8a80;
+  --alert-soft: #3f1d1a;
+  --closed: #8b979e;
+  --focus: #79b2ff;
+  --shadow-pop: 0 8px 28px rgb(0 0 0 / 0.5);
+}
