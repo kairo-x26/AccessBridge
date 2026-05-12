@@ -1,0 +1,56 @@
+.mini {
+  display: block;
+  overflow: visible;
+}
+.segDone {
+  stroke: var(--route);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.segAhead {
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+.segClosed {
+  stroke: var(--line);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 3;
+}
+.stopDone {
+  fill: var(--route);
+}
+.stopAhead {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+.stopClosed {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1.2;
+}
+.stopCurrentRing {
+  fill: var(--surface);
+  stroke: var(--route);
+  stroke-width: 2.4;
+}
+.stopComplete {
+  fill: var(--verified);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+.stopException {
+  fill: var(--exception);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+.branch {
+  stroke: var(--exception);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.endBar {
+  stroke: var(--closed);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}

@@ -1,0 +1,150 @@
+.map {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stop {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: var(--s3);
+}
+.rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.marker {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: var(--surface);
+}
+.segment {
+  position: absolute;
+  top: 18px;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  border-left: 2px solid var(--line-strong);
+  transform: translateX(-1px);
+}
+.segmentDone {
+  border-left: 4px solid var(--route);
+  transform: translateX(-2px);
+}
+.done .marker {
+  background: var(--route);
+  border-color: var(--route);
+}
+.current .marker {
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+  border: 4px solid var(--route);
+  box-shadow: 0 0 0 4px var(--route-soft);
+}
+.left .marker {
+  background: var(--route);
+  border-color: var(--route);
+}
+.proposed .marker {
+  border: 2px dashed var(--agent);
+  background: var(--agent-soft);
+}
+.stop:last-child.done .marker {
+  background: var(--verified);
+  border-color: var(--verified);
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+}
+
+.content {
+  padding-bottom: var(--s4);
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2);
+}
+.name {
+  font-weight: 700;
+}
+.ahead .name {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.now {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--route);
+}
+.time {
+  margin-left: auto;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: 4px;
+}
+.actor {
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+.proposal {
+  margin-top: var(--s2);
+  padding: var(--s2) var(--s3);
+  border: 1.5px dashed var(--agent);
+  border-radius: var(--r-control);
+  background: color-mix(in srgb, var(--agent-soft) 60%, transparent);
+}
+.proposalTitle {
+  font-weight: 700;
+  color: var(--agent);
+}
+.proposalReason {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+.proposalNote {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  margin-bottom: var(--s2);
+}
+
+.branch {
+  margin-top: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-left: 4px solid var(--exception);
+  background: var(--exception-soft);
+  border-radius: 0 var(--r-control) var(--r-control) 0;
+}
+.branch_declined,
+.branch_cancelled {
+  border-left-color: var(--closed);
+  background: var(--surface-sunk);
+}
+.branchReturn {
+  border-left-color: var(--route);
+  background: var(--route-soft);
+}
+.branchTitle {
+  display: flex;
+  gap: var(--s2);
+  font-weight: 700;
+}
+.branchReason {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}

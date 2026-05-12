@@ -1,0 +1,28 @@
+.region {
+  position: fixed;
+  right: var(--s4);
+  bottom: var(--s4);
+  z-index: 50;
+  display: grid;
+  gap: var(--s2);
+  max-width: min(420px, calc(100vw - 32px));
+}
+.toast {
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r-control);
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: var(--shadow-pop);
+  font-weight: 700;
+  animation: in 180ms var(--ease);
+}
+.error {
+  background: var(--alert);
+  color: #fff;
+}
+@keyframes in {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,50 @@
+.wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  background: var(--surface);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.table th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+  padding: 10px var(--s3);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  background: var(--surface);
+}
+.table td {
+  padding: 10px var(--s3);
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--route-soft) 35%, var(--surface));
+}
+.table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.primaryCell a {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+.primaryCell a:hover {
+  color: var(--route);
+  text-decoration: underline;
+}
+.sub {
+  display: block;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}

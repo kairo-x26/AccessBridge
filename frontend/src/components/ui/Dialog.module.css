@@ -1,0 +1,56 @@
+.dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+}
+.dialog::backdrop {
+  background: rgb(15 23 28 / 0.45);
+}
+.dialog[open] {
+  animation: rise 160ms var(--ease);
+}
+@keyframes rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--s4) var(--s4) 0;
+}
+.header h2 {
+  font-size: var(--fs-lg);
+}
+.close {
+  border: 0;
+  background: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-control);
+  cursor: pointer;
+  color: var(--ink-3);
+}
+.close:hover {
+  background: var(--surface-sunk);
+}
+.body {
+  display: grid;
+  gap: var(--s4);
+  padding: var(--s4);
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s2);
+  padding: 0 var(--s4) var(--s4);
+}

@@ -1,0 +1,33 @@
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  min-width: 0;
+}
+.agent {
+  border: 1.5px dashed var(--agent);
+  background: color-mix(in srgb, var(--agent-soft) 45%, var(--surface));
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s4) var(--s4) 0;
+}
+.title {
+  font-size: var(--fs-lg);
+}
+.description {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  margin-top: 2px;
+}
+.actions {
+  display: flex;
+  gap: var(--s2);
+  flex-shrink: 0;
+}
+.body {
+  padding: var(--s4);
+}

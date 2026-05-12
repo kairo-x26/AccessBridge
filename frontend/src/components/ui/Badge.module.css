@@ -1,0 +1,60 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 9px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.neutral {
+  background: var(--surface-sunk);
+  color: var(--ink-2);
+}
+.route {
+  background: var(--route-soft);
+  color: var(--route);
+}
+.verified {
+  background: var(--verified-soft);
+  color: var(--verified);
+}
+.exception {
+  background: var(--exception-soft);
+  color: var(--exception);
+}
+.closed {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--closed);
+}
+.alert {
+  background: var(--alert-soft);
+  color: var(--alert);
+}
+.agent {
+  background: var(--agent-soft);
+  color: var(--agent);
+  border: 1px dashed var(--agent);
+}
+
+.evidence {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: var(--r-control);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.7;
+}
+.verifiedEvidence {
+  border: 1px solid var(--verified);
+  color: var(--verified);
+}
+.proposed {
+  border: 1px dashed var(--agent);
+  color: var(--agent);
+}
