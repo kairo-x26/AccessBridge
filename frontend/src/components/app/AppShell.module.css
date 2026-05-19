@@ -1,0 +1,247 @@
+.shell {
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4) 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+.brand {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-panel);
+}
+.nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  width: 100%;
+}
+.navItem {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 4px 8px;
+  margin: 0 8px;
+  border-radius: var(--r-panel);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+.navItem:hover {
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+.navItem[aria-current="page"] {
+  background: var(--route-soft);
+  color: var(--route);
+}
+.navIcon {
+  position: relative;
+  display: inline-flex;
+}
+.navIcon svg {
+  width: 22px;
+  height: 22px;
+}
+.count {
+  position: absolute;
+  top: -7px;
+  right: -14px;
+  min-width: 20px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  background: var(--agent);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  border: 2px solid var(--surface);
+}
+.navLabel {
+  text-align: center;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  min-height: 56px;
+  padding: 0 var(--s5);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.org {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.user {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.me {
+  display: grid;
+  text-decoration: none;
+  color: var(--ink);
+  line-height: 1.25;
+  text-align: right;
+}
+.meName {
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.meRole {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+.signOut,
+.bell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+.signOut:hover,
+.bell:hover {
+  background: var(--surface-sunk);
+}
+.notes {
+  position: relative;
+}
+.bell {
+  position: relative;
+  padding: 0 8px;
+}
+.dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--verified);
+  border: 2px solid var(--surface);
+}
+.notesMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  width: min(360px, calc(100vw - 32px));
+  padding: var(--s3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  box-shadow: var(--shadow-pop);
+}
+.notesMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.notesMenu li {
+  display: grid;
+  gap: 2px;
+  padding: var(--s2) 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+}
+.notesTitle {
+  font-weight: 700;
+  padding-bottom: var(--s2);
+}
+.notesEmpty {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+}
+.noteRead {
+  opacity: 0.7;
+}
+.noteTime {
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+.banner {
+  padding: var(--s3) var(--s5);
+  background: var(--exception-soft);
+  border-bottom: 1px solid var(--exception);
+  font-weight: 700;
+}
+.content {
+  padding: var(--s5);
+  outline: none;
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rail {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    height: auto;
+    flex-direction: row;
+    padding: 0;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .brand {
+    display: none;
+  }
+  .nav {
+    display: flex;
+    width: max-content;
+  }
+  .navItem {
+    margin: 4px;
+    min-width: 72px;
+  }
+  .main {
+    padding-bottom: 76px;
+  }
+  .topbar {
+    padding: 0 var(--s4);
+  }
+  .meRole,
+  .signOut span {
+    display: none;
+  }
+  .content {
+    padding: var(--s4);
+  }
+}
