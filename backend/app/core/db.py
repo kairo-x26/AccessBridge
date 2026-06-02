@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy import DateTime, MetaData, create_engine, event
+from sqlalchemy import DateTime, MetaData, TypeDecorator, create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
@@ -29,9 +29,30 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex[:20]}"
 
 
+class UTCDateTime(TypeDecorator[datetime]):
+    """Timezone-aware UTC datetimes on every backend.
+
+    SQLite drops offsets; without this, values read back naive and clients would misread
+    them as local time.
+    """
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value: datetime | None, dialect: object) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            value = value.replace(tzinfo=UTC)
+        return value.astimezone(UTC) if value is not None else None
+
+    def process_result_value(self, value: datetime | None, dialect: object) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value
+
+
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING)
-    type_annotation_map = {datetime: DateTime(timezone=True)}
+    type_annotation_map = {datetime: UTCDateTime()}
 
 
 class TimestampMixin:

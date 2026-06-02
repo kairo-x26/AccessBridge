@@ -18,3 +18,16 @@ def test_redaction_removes_identifiers():
     out = redact(text)
     for leaked in ["123-45-6789", "555", "a.b@x.org", "04/12/1980", "A12345"]:
         assert leaked not in out
+
+
+def test_timestamps_are_serialized_with_utc_offset(client):
+    from tests.factories import make_org, make_user
+
+    org = make_org()
+    admin = make_user(org, "admin")
+    r = client.post(
+        "/v1/users/invitations",
+        headers=admin.headers(),
+        json={"email": "tz@example.org", "role": "navigator"},
+    )
+    assert r.json()["expires_at"].endswith(("+00:00", "Z"))
