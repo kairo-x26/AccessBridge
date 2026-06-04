@@ -1,0 +1,71 @@
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--s4);
+}
+.tab {
+  border: 0;
+  background: none;
+  padding: var(--s2) var(--s3);
+  margin-bottom: -1px;
+  border-bottom: 3px solid transparent;
+  font-weight: 700;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--route);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
+  gap: var(--s4);
+}
+.card {
+  display: grid;
+  gap: var(--s2);
+  align-content: start;
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+}
+.pending {
+  border: 1.5px dashed var(--agent);
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+.title {
+  font-size: var(--fs-lg);
+}
+.time {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+.who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--fs-sm);
+}
+.who a {
+  font-weight: 700;
+}
+.reason {
+  color: var(--ink-2);
+}
+.effect {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}

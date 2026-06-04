@@ -1,0 +1,52 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+  max-width: 880px;
+}
+.reply {
+  display: grid;
+  gap: var(--s2);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+}
+.escalated {
+  border-left: 5px solid var(--alert);
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+.head a {
+  font-weight: 700;
+}
+.time {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+.body {
+  margin: 0;
+  padding: var(--s2) var(--s3);
+  background: var(--surface-sunk);
+  border-radius: var(--r-control);
+}
+.note {
+  font-size: var(--fs-sm);
+  color: var(--alert);
+  font-weight: 700;
+}
+.resolve {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+.resolve label {
+  flex: 1 1 240px;
+}
