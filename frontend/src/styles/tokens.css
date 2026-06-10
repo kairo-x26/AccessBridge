@@ -33,6 +33,15 @@
 
   --focus: #1f6fd1;
 
+  /* Data viz: one-hue ordinal ramp (validated: monotone, visible steps, clears surface). */
+  --seq-1: #6cc0b5;
+  --seq-2: #3aa094;
+  --seq-3: #1a8378;
+  --seq-4: #0e6660;
+  --seq-5: #08443f;
+  --mark-muted: #a9b6b2;
+  --grid: #e3e8e6;
+
   /* Type: Atkinson Hyperlegible Next, one family, weight carries hierarchy.
      Modular scale 1.125 around a 15px working size for dense operational screens. */
   --font: "Atkinson Hyperlegible Next Variable", "Atkinson Hyperlegible Next", system-ui,
@@ -90,6 +99,13 @@
     --closed: #8b979e;
     --focus: #79b2ff;
     --shadow-pop: 0 8px 28px rgb(0 0 0 / 0.5);
+    --seq-1: #1f5c56;
+    --seq-2: #2b8178;
+    --seq-3: #3fa79c;
+    --seq-4: #68c9be;
+    --seq-5: #a4e3db;
+    --mark-muted: #435661;
+    --grid: #24343d;
   }
 }
 
@@ -117,4 +133,11 @@
   --closed: #8b979e;
   --focus: #79b2ff;
   --shadow-pop: 0 8px 28px rgb(0 0 0 / 0.5);
+  --seq-1: #1f5c56;
+  --seq-2: #2b8178;
+  --seq-3: #3fa79c;
+  --seq-4: #68c9be;
+  --seq-5: #a4e3db;
+  --mark-muted: #435661;
+  --grid: #24343d;
 }
