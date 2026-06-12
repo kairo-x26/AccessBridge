@@ -1,0 +1,41 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  gap: var(--s4);
+  align-items: start;
+  max-width: 1000px;
+}
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s2) var(--s4);
+  margin: 0;
+}
+.facts dt {
+  color: var(--ink-3);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 700;
+}
+.form {
+  display: grid;
+  gap: var(--s4);
+}
+.steps {
+  margin: 0;
+  padding-left: 1.3em;
+  display: grid;
+  gap: var(--s2);
+}
+.key {
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  background: var(--surface-sunk);
+  border-radius: 4px;
+}
+.muted {
+  color: var(--ink-3);
+}
