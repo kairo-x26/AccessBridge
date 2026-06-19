@@ -51,7 +51,7 @@ export function Dashboard() {
 
   const q = new URLSearchParams();
   if (specialty) q.set("specialty", specialty);
-  if (range) q.set("since", new Date(Date.now() - Number(range) * 86_400_000).toISOString());
+  if (range) q.set("since_days", range);
   const { data: r, error, mutate, isValidating } = useApi<Report>(`/reports/referrals?${q}`, { keepPreviousData: true });
 
   function set(key: string, v: string) {

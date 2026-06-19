@@ -30,7 +30,8 @@ export function TaskItem({
   const { data: me } = useMe();
   const [resolving, setResolving] = useState(false);
   const [note, setNote] = useState("");
-  const overdue = task.due_at && new Date(task.due_at).getTime() < Date.now();
+  const [now] = useState(() => Date.now());
+  const overdue = task.due_at && new Date(task.due_at).getTime() < now;
 
   async function patch(body: Record<string, unknown>, done: string) {
     try {

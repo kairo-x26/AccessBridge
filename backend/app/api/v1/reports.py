@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import DB, Principal, require
+from app.core.db import utcnow
 from app.domain.rbac import Perm
 from app.services import audit, reports
 
@@ -22,8 +23,11 @@ def referral_metrics(
     owner_id: str | None = None,
     since: datetime | None = None,
     until: datetime | None = None,
+    since_days: int | None = Query(None, ge=1, le=3650),
 ) -> dict[str, Any]:
     """Authorized operational metrics (spec §9)."""
+    if since_days and not since:
+        since = utcnow() - timedelta(days=since_days)
     if owner_id == "me":
         owner_id = principal.user_id
     r = reports.build(

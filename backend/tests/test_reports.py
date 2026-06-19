@@ -29,3 +29,23 @@ def test_metrics_permissions_and_isolation(client):
     _, other_admin, _, _ = flows.setup_clinic(client, slug="lakeside")
     m = client.get("/v1/reports/referrals", headers=other_admin.headers()).json()
     assert m["totals"]["referrals"] == 0 and m["agent"]["proposals"] == 0
+
+
+def test_since_days_filters_by_import_date(client):
+    from datetime import timedelta
+
+    from app.core import db
+    from app.core.db import utcnow
+    from app.models import Referral
+
+    org, admin, coord, prov = flows.setup_clinic(client)
+    rid = flows.import_referral(client, coord)
+    flows.import_referral(client, coord, rid="sr-2")
+    with db.session_factory()() as s:
+        s.get(Referral, rid).created_at = utcnow() - timedelta(days=45)
+        s.commit()
+    m = client.get("/v1/reports/referrals?since_days=30", headers=admin.headers()).json()
+    assert m["totals"]["referrals"] == 1
+    assert (
+        client.get("/v1/reports/referrals?since_days=0", headers=admin.headers()).status_code == 422
+    )
