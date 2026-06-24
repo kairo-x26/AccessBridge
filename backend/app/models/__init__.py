@@ -10,6 +10,7 @@ from app.models.intelligence import (
     ValidationIssue,
 )
 from app.models.organization import Organization
+from app.models.policy import PolicyChunk, PolicyDocument
 from app.models.referral import (
     ExternalProvider,
     IdempotencyRecord,
@@ -43,6 +44,8 @@ __all__ = [
     "Invitation",
     "Organization",
     "PatientReference",
+    "PolicyChunk",
+    "PolicyDocument",
     "Referral",
     "ReferralDocument",
     "ReferralStatusEvent",

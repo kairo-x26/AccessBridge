@@ -7,6 +7,8 @@ from app.api.v1 import (
     communications,
     dev,
     integrations,
+    organization,
+    policies,
     providers,
     referrals,
     reports,
@@ -30,6 +32,8 @@ for r in (
     communications.router,
     communications.webhooks,
     reports.router,
+    policies.router,
+    organization.router,
 ):
     api.include_router(r)
 

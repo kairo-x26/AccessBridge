@@ -276,6 +276,32 @@ def _backdate(rid: str, days: int) -> None:
         s.commit()
 
 
+POLICIES = [
+    ("Specialty referral procedure", "referral-procedure.md", True),
+    ("Patient text messaging policy", "patient-messaging-policy.md", True),
+    ("Handling referral exceptions", "exceptions-procedure.md", True),
+    ("Specialist office contact notes", "vendor-notes.md", True),
+]
+
+
+def _policies(ctx: Ctx, uploader: str, approver: str) -> None:
+    from pathlib import Path
+
+    folder = Path(__file__).parent / "seed_data"
+    for title, filename, approve in POLICIES:
+        r = ctx.client.post(
+            "/v1/policies",
+            headers=ctx.h(uploader),
+            data={"title": title},
+            files={"file": (filename, (folder / filename).read_bytes(), "text/plain")},
+        )
+        r.raise_for_status()
+        if approve:
+            ctx.client.post(
+                f"/v1/policies/{r.json()['id']}/approve", headers=ctx.h(approver)
+            ).raise_for_status()
+
+
 def seed(reset: bool = False) -> dict[str, Any]:
     from app.main import create_app
 
@@ -434,6 +460,8 @@ def seed(reset: bool = False) -> dict[str, Any]:
             _drain()
             _approve_pending(ctx, rid, coord, "propose_completion")
         _backdate(rid, age)
+
+    _policies(ctx, admin, admin2)
 
     # Back-date the follow-up clock for stale submissions and run the sweeps once.
     with db.session_factory()() as s:
