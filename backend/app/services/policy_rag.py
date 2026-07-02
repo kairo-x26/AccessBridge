@@ -235,17 +235,29 @@ def _extractive(query: str, hits: list[Hit]) -> Answer:
                 h.chunk.text[:400],
             )
         )
-        for s in _sentences(h.chunk.text):
-            overlap = len(q & set(tokens(s)))
-            if overlap:
-                picked.append((overlap + h.score / 10, s, i))
+    candidates = [
+        (set(tokens(s)), s, i)
+        for i, h in enumerate(hits[:3], start=1)
+        for s in _sentences(h.chunk.text)
+    ]
+    # Weight each question term by how rare it is among candidate sentences, so a sentence
+    # matching "symptoms" outranks several that only share "patient" and "text".
+    df = Counter(t for toks, _, _ in candidates for t in toks & q)
+    n = max(1, len(candidates))
+    for toks, s, i in candidates:
+        weight = sum(math.log(1 + n / df[t]) for t in toks & q)
+        if weight:
+            picked.append((weight, s, i))
     picked.sort(key=lambda x: x[0], reverse=True)
+    # Keep only sentences nearly as relevant as the best one; padding misleads more than it helps.
+    best = picked[0][0] if picked else 0
+    picked = [p for p in picked if p[0] >= 0.6 * best][:3]
     lines, seen = [], set()
-    for _, s, n in picked[:3]:
+    for _, s, n in picked:
         if s not in seen:
             seen.add(s)
             lines.append(f"{s} [{n}]")
-    used = {n for _, _, n in picked[:3]}
+    used = {n for _, _, n in picked}
     return Answer(
         True,
         " ".join(lines) if lines else hits[0].chunk.text[:300] + " [1]",

@@ -200,3 +200,10 @@ def test_organization_settings(client):
     )
     # MFA now enforced for sessions without a second factor.
     assert client.get("/v1/referrals", headers=coord.headers(mfa=False)).status_code == 403
+
+
+def test_answer_leaves_out_weakly_related_sentences(client):
+    _, _, _, coord = _library(client)
+    a = _ask(client, coord, "What should I do if a patient texts back about symptoms?")
+    assert "do not answer by text" in a["answer"]
+    assert "STOP" not in a["answer"]

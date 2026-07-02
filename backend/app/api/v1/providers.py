@@ -63,7 +63,7 @@ def update_provider(
     provider_id: str, body: ProviderIn, principal: Admin, session: DB
 ) -> ExternalProvider:
     p = get_scoped(session, ExternalProvider, provider_id, principal.organization_id)
-    for k, v in body.model_dump().items():
+    for k, v in body.model_dump(exclude_unset=True).items():
         setattr(p, k, v)
     audit.record(
         session,

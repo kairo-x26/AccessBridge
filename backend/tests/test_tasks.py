@@ -155,3 +155,24 @@ def test_terminal_transition_closes_open_tasks(database):
             .count()
         )
         assert open_tasks == 0
+
+
+def test_provider_update_keeps_unsent_fields(client):
+    from app.core import db
+    from app.models import ExternalProvider
+
+    org = make_org()
+    admin = make_user(org, "admin")
+    p = client.post(
+        "/v1/providers",
+        headers=admin.headers(),
+        json={"name": "Office", "specialty": "cardiology", "endpoint": "sim://down"},
+    ).json()
+    client.put(
+        f"/v1/providers/{p['id']}",
+        headers=admin.headers(),
+        json={"name": "Office 2", "specialty": "cardiology"},
+    )
+    with db.session_factory()() as s:
+        row = s.get(ExternalProvider, p["id"])
+        assert row.name == "Office 2" and row.endpoint == "sim://down"
