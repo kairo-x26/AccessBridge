@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = ["/login", "/api/session"];
+const PUBLIC = ["/login", "/accept-invitation", "/api/session", "/api/v1/auth/accept-invitation"];
 
 /** Send signed-out visitors to the sign-in page before any app route renders. */
 export function proxy(request: NextRequest) {

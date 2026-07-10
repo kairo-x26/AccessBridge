@@ -54,9 +54,38 @@ test("a clinician sees status but no contact details or controls", async ({ page
 
 test("key screens have no WCAG 2.2 AA violations", async ({ page }) => {
   await signIn(page, USERS.admin);
-  for (const path of ["/queue?view=all", "/approvals", "/tasks?view=all", "/dashboard", "/audit"]) {
+  for (const path of ["/queue?view=all", "/approvals", "/tasks?view=all", "/dashboard", "/audit", "/policies", "/admin?tab=organization", "/admin?tab=templates", "/inbox", "/account"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     expect(await axe(page), path).toEqual([]);
   }
+});
+
+test("the policy assistant answers from approved procedures with citations", async ({ page }) => {
+  await signIn(page, USERS.coordinator);
+  await page.goto("/policies");
+  await page.getByLabel("Your question").fill("How long before we follow up when the specialist hasn't acknowledged?");
+  await page.getByRole("button", { name: "Search procedures" }).click();
+  await expect(page.getByText("Quoted from your procedures")).toBeVisible();
+  await expect(page.locator("#source-1")).toContainText("Specialty referral procedure");
+  await page.getByLabel("Your question").fill("What is the visitor parking policy?");
+  await page.getByRole("button", { name: "Search procedures" }).click();
+  await expect(page.getByText("Not in your procedures")).toBeVisible();
+});
+
+test("an administrator invites a navigator who can then sign in", async ({ page, browser }) => {
+  await signIn(page, USERS.admin);
+  await page.goto("/admin?tab=people");
+  await page.getByLabel("Email").fill("new.navigator@riverbend.example.org");
+  await page.getByLabel("Role").first().selectOption("navigator");
+  await page.getByRole("button", { name: "Create invitation" }).click();
+  const link = (await page.locator("p", { hasText: "/accept-invitation?token=" }).textContent())!.trim();
+  const fresh = await browser.newPage();
+  await fresh.goto(link);
+  await fresh.getByLabel("Your full name").fill("Nia Navigator");
+  await fresh.getByLabel("Choose a password").fill("Fresh-Password-2026");
+  await fresh.getByLabel("Confirm password").fill("Fresh-Password-2026");
+  await fresh.getByRole("button", { name: "Create my account" }).click();
+  await expect(fresh.getByRole("heading", { name: "You’re in" })).toBeVisible();
+  await fresh.close();
 });

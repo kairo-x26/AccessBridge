@@ -1,0 +1,82 @@
+.stack {
+  display: grid;
+  gap: var(--s4);
+  max-width: 1100px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s3);
+}
+.row > * {
+  flex: 1 1 220px;
+}
+.row > button {
+  flex: 0 0 auto;
+  margin-top: 27px; /* line up with inputs under their labels */
+}
+.muted {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+}
+.token {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  padding: var(--s2) var(--s3);
+  background: var(--surface-sunk);
+  border-radius: var(--r-control);
+}
+.checks {
+  display: grid;
+  gap: var(--s2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.checks legend {
+  font-weight: 700;
+  margin-bottom: var(--s2);
+}
+.checks label {
+  display: flex;
+  gap: var(--s2);
+  align-items: flex-start;
+}
+.checks input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--route);
+}
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr));
+  gap: var(--s4);
+}
+.templateBody {
+  margin: 0;
+  padding: var(--s3);
+  background: var(--surface-sunk);
+  border-radius: var(--r-control);
+  font-size: var(--fs-sm);
+  white-space: pre-wrap;
+}
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.item {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr) auto auto;
+  gap: var(--s2);
+  align-items: center;
+}
+@media (max-width: 800px) {
+  .item {
+    grid-template-columns: 1fr 1fr;
+  }
+}
