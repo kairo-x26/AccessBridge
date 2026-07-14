@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel, EmailStr, Field
 
 from app.api.deps import DB, CurrentPrincipal, mfa_required_for
+from app.core.ratelimit import client_ip, limit
 from app.core.security import totp_uri
 from app.domain.rbac import permissions_for
 from app.models import Organization, User
@@ -60,7 +61,9 @@ class MeOut(BaseModel):
 
 
 @router.post("/login", response_model=TokenOut)
-def login(body: LoginIn, session: DB) -> TokenOut:
+def login(body: LoginIn, session: DB, request: Request) -> TokenOut:
+    limit(f"login-ip:{client_ip(request)}", limit=30, window_s=300)
+    limit(f"login-acct:{body.organization}:{body.email.lower()}", limit=10, window_s=900)
     result = auth.login(
         session, organization_slug=body.organization, email=body.email, password=body.password
     )
@@ -70,7 +73,8 @@ def login(body: LoginIn, session: DB) -> TokenOut:
 
 
 @router.post("/mfa/verify", response_model=TokenOut)
-def mfa_verify(body: MfaVerifyIn, session: DB) -> TokenOut:
+def mfa_verify(body: MfaVerifyIn, session: DB, request: Request) -> TokenOut:
+    limit(f"mfa-ip:{client_ip(request)}", limit=20, window_s=300)
     return TokenOut(
         access_token=auth.verify_mfa_challenge(session, challenge=body.challenge, code=body.code)
     )
@@ -92,7 +96,8 @@ def mfa_enable(body: MfaCodeIn, principal: CurrentPrincipal, session: DB) -> Tok
 
 
 @router.post("/accept-invitation", response_model=MeOut, status_code=201)
-def accept_invitation(body: AcceptInvitationIn, session: DB) -> MeOut:
+def accept_invitation(body: AcceptInvitationIn, session: DB, request: Request) -> MeOut:
+    limit(f"invite-ip:{client_ip(request)}", limit=10, window_s=3600)
     user = auth.accept_invitation(
         session, token=body.token, full_name=body.full_name, password=body.password
     )

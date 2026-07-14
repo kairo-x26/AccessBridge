@@ -35,3 +35,11 @@ def _reset_simulated_receiver():
 
     exchange.receiver = exchange.SimulatedReceiver()
     yield
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    from app.core.ratelimit import limiter
+
+    limiter.reset()
+    yield

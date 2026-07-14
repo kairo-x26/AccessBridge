@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 from app.api.deps import DB, Principal, require
 from app.core.db import utcnow
 from app.core.errors import Forbidden, ValidationFailed
+from app.core.ratelimit import limit
 from app.core.tenancy import get_scoped, scoped
 from app.domain.rbac import Perm
 from app.models import PolicyDocument
@@ -164,6 +165,7 @@ class AnswerOut(BaseModel):
 
 @router.post("/ask", response_model=AnswerOut)
 def ask(body: AskIn, principal: Searcher, session: DB) -> AnswerOut:
+    limit(f"policy-ask:{principal.user_id}", limit=30, window_s=60)
     a = policy_rag.ask(session, principal.organization_id, body.question)
     # Questions may mention patients; the audit keeps a fingerprint, not the text.
     audit.record(

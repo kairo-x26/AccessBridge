@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     job_lease_seconds: int = 60
 
     cors_origins: list[str] = ["http://localhost:3000"]
+    metrics_token: str | None = None
+    # Only trust X-Forwarded-For when a known proxy (load balancer, the BFF) sits in front.
+    trust_proxy: bool = False
+    rate_limits_enabled: bool = True
     log_level: str = "INFO"
 
     @model_validator(mode="after")

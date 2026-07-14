@@ -19,6 +19,7 @@ from app.core.errors import (
     Unauthorized,
     ValidationFailed,
 )
+from app.core.ratelimit import client_ip, limit
 from app.core.tenancy import get_scoped, scoped
 from app.domain import templates as tpl_rules
 from app.domain.rbac import Perm
@@ -334,6 +335,7 @@ async def messaging_webhook(
     x_ab_signature: Annotated[str | None, Header()] = None,
 ) -> dict[str, str]:
     """Delivery receipts and inbound replies from the messaging provider (signed)."""
+    limit(f"webhook-ip:{client_ip(request)}", limit=600, window_s=60)
     raw = await request.body()
     if not sms.verify(raw, x_ab_timestamp, x_ab_signature):
         raise Unauthorized("Invalid webhook signature.")
