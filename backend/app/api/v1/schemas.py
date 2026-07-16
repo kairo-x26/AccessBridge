@@ -125,6 +125,8 @@ class ReferralDetail(ReferralSummary):
     reason_from_source: str | None
     referring_clinician: str | None
     exception_reason: str | None
+    legal_hold: bool
+    purged_at: datetime | None
     package_approved_by: str | None
     package_approved_at: datetime | None
     patient: PatientOut

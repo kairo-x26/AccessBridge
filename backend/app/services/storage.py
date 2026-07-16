@@ -38,3 +38,14 @@ def get(storage_uri: str, organization_id: str) -> bytes:
     if checksum(data) != rel.rsplit("/", 1)[-1].removesuffix(".bin"):
         raise ValueError("document checksum mismatch")
     return data
+
+
+def delete(storage_uri: str, organization_id: str) -> bool:
+    rel = storage_uri.removeprefix("local://")
+    if not rel.startswith(f"{organization_id}/") or ".." in rel:
+        raise PermissionError("document is outside the organization's storage")
+    path = _root() / rel
+    if path.exists():
+        path.unlink()
+        return True
+    return False

@@ -435,6 +435,13 @@ def _job_run_dead(session: Session, job: Job, error: str) -> bool:
     return False
 
 
+@queue.handler("sweep.retention")
+def _job_retention(session: Session, job: Job) -> dict[str, Any]:
+    from app.services import retention
+
+    return {"purged": retention.sweep(session)}
+
+
 @queue.handler("sweep.escalation")
 def _job_escalation(session: Session, job: Job) -> dict[str, Any]:
     return {"escalated": len(tasks.escalate_overdue(session))}

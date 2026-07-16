@@ -151,6 +151,8 @@ def build_detail(session: Session, r: Referral, principal: Principal) -> Referra
         reason_from_source=r.reason_from_source,
         referring_clinician=r.referring_clinician,
         exception_reason=r.exception_reason,
+        legal_hold=r.legal_hold,
+        purged_at=r.purged_at,
         package_approved_by=r.package_approved_by,
         package_approved_at=r.package_approved_at,
         patient=patient_view(r.patient, principal.role),
@@ -576,3 +578,31 @@ def document_text(document_id: str, principal: DocReader, session: DB) -> dict[s
         resource_ref=doc.id,
     )
     return {"id": doc.id, "text": doc.text_content, "extraction_status": doc.extraction_status}
+
+
+class LegalHoldIn(BaseModel):
+    hold: bool
+    reason: str = Field(min_length=5, max_length=300)
+
+
+@router.post("/{referral_id}/legal-hold", response_model=ReferralDetail)
+def set_legal_hold(
+    referral_id: str,
+    body: LegalHoldIn,
+    principal: Annotated[Principal, Depends(require(Perm.CONFIG_MANAGE))],
+    session: DB,
+) -> ReferralDetail:
+    """Place or lift a legal hold; held referrals are never purged by retention."""
+    r = get_scoped(session, Referral, referral_id, principal.organization_id)
+    if r.purged_at:
+        raise ValidationFailed("This referral's working data was already purged.")
+    r.legal_hold = body.hold
+    audit.record(
+        session,
+        organization_id=principal.organization_id,
+        actor=principal.actor,
+        operation="referral.legal_hold",
+        resource_ref=r.id,
+        details={"hold": body.hold, "reason": body.reason},
+    )
+    return build_detail(session, r, principal)

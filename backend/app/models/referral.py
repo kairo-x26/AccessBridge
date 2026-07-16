@@ -84,6 +84,8 @@ class Referral(TimestampMixin, Base):
     exception_reason: Mapped[str | None] = mapped_column(String(300))
     content_hash: Mapped[str | None] = mapped_column(String(64))
     version: Mapped[int] = mapped_column(default=1)
+    legal_hold: Mapped[bool] = mapped_column(default=False)
+    purged_at: Mapped[datetime | None]
 
     patient: Mapped[PatientReference] = relationship(lazy="joined")
     provider: Mapped[ExternalProvider | None] = relationship(lazy="joined")

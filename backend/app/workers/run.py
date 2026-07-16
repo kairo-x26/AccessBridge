@@ -22,6 +22,7 @@ SWEEPS = {
     # kind: bucket format (one job per bucket across all workers)
     "sweep.escalation": "%Y-%m-%dT%H:%M",  # every minute
     "sweep.follow_up": "%Y-%m-%dT%H",  # hourly
+    "sweep.retention": "%Y-%m-%d",  # daily
 }
 
 
