@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { SESSION_COOKIE, backendUrl, sessionCookie } from "@/lib/server/backend";
+import { SESSION_COOKIE, backendUrl, forwardedHeaders, sessionCookie } from "@/lib/server/backend";
 
 const PASS_REQUEST = ["content-type", "idempotency-key", "x-request-id"];
 const PASS_RESPONSE = [
@@ -30,6 +30,7 @@ async function forward(request: Request, ctx: { params: Promise<{ path: string[]
     const v = request.headers.get(h);
     if (v) headers.set(h, v);
   }
+  for (const [k, v] of Object.entries(forwardedHeaders(request))) headers.set(k, v);
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (token) headers.set("authorization", `Bearer ${token}`);
 

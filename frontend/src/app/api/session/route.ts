@@ -1,14 +1,14 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { SESSION_COOKIE, backendUrl, sessionCookie } from "@/lib/server/backend";
+import { SESSION_COOKIE, backendUrl, forwardedHeaders, sessionCookie } from "@/lib/server/backend";
 
 /** Sign in: exchange credentials for a backend token kept in an httpOnly cookie. */
 export async function POST(request: Request) {
   const body = await request.text();
   const res = await fetch(backendUrl("v1/auth/login"), {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...forwardedHeaders(request) },
     body,
     cache: "no-store",
   });

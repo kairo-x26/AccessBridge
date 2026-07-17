@@ -19,3 +19,9 @@ export function sessionCookie(token: string) {
     maxAge: SESSION_MAX_AGE,
   };
 }
+
+/** Headers that let the API rate-limit per browser rather than per BFF instance. */
+export function forwardedHeaders(request: Request): Record<string, string> {
+  const ip = request.headers.get("x-forwarded-for");
+  return ip ? { "x-forwarded-for": ip.split(",")[0].trim() } : {};
+}

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { backendUrl, sessionCookie } from "@/lib/server/backend";
+import { backendUrl, forwardedHeaders, sessionCookie } from "@/lib/server/backend";
 
 /** Second sign-in step: redeem the MFA challenge with a current TOTP code. */
 export async function POST(request: Request) {
   const res = await fetch(backendUrl("v1/auth/mfa/verify"), {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...forwardedHeaders(request) },
     body: await request.text(),
     cache: "no-store",
   });
