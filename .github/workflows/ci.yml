@@ -22,6 +22,35 @@ jobs:
       - run: uv run mypy app
       - run: uv run pytest --cov=app --cov-report=term-missing
 
+  backend-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: accessbridge_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      AB_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/accessbridge_test
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --all-extras
+      - run: uv run pytest
+      - name: Migrations match the models on PostgreSQL
+        run: |
+          AB_DATABASE_URL=$AB_TEST_DATABASE_URL uv run python -c "from app.core import db; from app import models; db.configure(); db.Base.metadata.drop_all(db.engine())"
+          AB_DATABASE_URL=$AB_TEST_DATABASE_URL uv run alembic upgrade head
+          AB_DATABASE_URL=$AB_TEST_DATABASE_URL uv run alembic check
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
