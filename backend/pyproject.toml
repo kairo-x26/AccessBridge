@@ -40,7 +40,8 @@ packages = ["app"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q -m 'not perf'"
+markers = ["perf: latency checks against NFR targets (run with -m perf)"]
 filterwarnings = ["error::DeprecationWarning:app.*", "ignore:Using `httpx` with"]
 
 [tool.ruff]
