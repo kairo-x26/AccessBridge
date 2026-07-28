@@ -1,0 +1,70 @@
+# Local production-like stack: PostgreSQL, API, worker and web app.
+#   cp .env.example .env   # then set real secrets
+#   docker compose up --build
+# Demo with synthetic data: set AB_ENVIRONMENT=development and NEXT_PUBLIC_DEMO=1 in .env, then
+#   docker compose run --rm api python -m app.seed
+name: accessbridge
+
+x-api-env: &api-env
+  AB_ENVIRONMENT: ${AB_ENVIRONMENT:-production}
+  AB_DATABASE_URL: postgresql+psycopg://accessbridge:${POSTGRES_PASSWORD}@db:5432/accessbridge
+  AB_JWT_SECRET: ${AB_JWT_SECRET}
+  AB_FIELD_ENCRYPTION_KEY: ${AB_FIELD_ENCRYPTION_KEY}
+  AB_MESSAGING_WEBHOOK_SECRET: ${AB_MESSAGING_WEBHOOK_SECRET}
+  AB_METRICS_TOKEN: ${AB_METRICS_TOKEN}
+  AB_LLM_PROVIDER: ${AB_LLM_PROVIDER:-deterministic}
+  AB_ANTHROPIC_API_KEY: ${AB_ANTHROPIC_API_KEY:-}
+  # The API is reachable only from the web app on the private network, so it may trust
+  # the client address the web app forwards for rate limiting.
+  AB_TRUST_PROXY: "true"
+  AB_CORS_ORIGINS: '["${WEB_ORIGIN:-http://localhost:3000}"]'
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: accessbridge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: accessbridge
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U accessbridge"]
+      interval: 5s
+      retries: 20
+
+  migrate:
+    build: ./backend
+    environment: *api-env
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    build: ./backend
+    environment: *api-env
+    volumes: [documents:/data/documents]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    expose: ["8000"]
+
+  worker:
+    build: ./backend
+    environment: *api-env
+    command: ["python", "-m", "app.workers.run"]
+    volumes: [documents:/data/documents]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_DEMO: ${NEXT_PUBLIC_DEMO:-0}
+    environment:
+      BACKEND_URL: http://api:8000
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  documents:
