@@ -157,6 +157,8 @@ def test_list_filters_search_and_pagination(client):
     client.post("/v1/referrals/import", headers=coord.headers(), json=_bundle(*refs))
     h = coord.headers()
     assert client.get("/v1/referrals?q=whitf", headers=h).json()["total"] == 1
+    assert client.get("/v1/referrals?q=james whitfield", headers=h).json()["total"] == 1
+    assert client.get("/v1/referrals?q=james delgado", headers=h).json()["total"] == 0
     assert client.get("/v1/referrals?specialty=dermatology", headers=h).json()["total"] == 1
     page = client.get("/v1/referrals?page_size=2&page=2", headers=h).json()
     assert page["total"] == 3 and len(page["items"]) == 1

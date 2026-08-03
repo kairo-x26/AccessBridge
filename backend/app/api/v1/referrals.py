@@ -339,16 +339,18 @@ def list_referrals(
     if created_before:
         stmt = stmt.where(Referral.created_at < created_before)
     if q:
-        like = f"%{q.strip().lower()}%"
-        stmt = stmt.where(
-            or_(
-                func.lower(PatientReference.family_name).like(like),
-                func.lower(PatientReference.given_name).like(like),
-                func.lower(PatientReference.ehr_patient_id).like(like),
-                func.lower(Referral.id).like(like),
-                func.lower(Referral.source_id).like(like),
+        # Every word must match something, so "rosa delgado" finds Rosa Delgado.
+        for word in q.lower().split()[:5]:
+            like = f"%{word}%"
+            stmt = stmt.where(
+                or_(
+                    func.lower(PatientReference.family_name).like(like),
+                    func.lower(PatientReference.given_name).like(like),
+                    func.lower(PatientReference.ehr_patient_id).like(like),
+                    func.lower(Referral.id).like(like),
+                    func.lower(Referral.source_id).like(like),
+                )
             )
-        )
     total = session.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = list(
         session.scalars(
