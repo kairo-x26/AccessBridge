@@ -162,12 +162,12 @@ export function Queue() {
                   <tr>
                     <th scope="col">Patient</th>
                     <th scope="col">Route</th>
-                    <th scope="col">Specialty</th>
-                    <th scope="col">Owner</th>
+                    <th scope="col" className={styles.wide}>Specialty</th>
+                    <th scope="col" className={styles.wide}>Owner</th>
                     <th scope="col" className={tableStyles.num}>
                       Age
                     </th>
-                    <th scope="col" className={tableStyles.num}>
+                    <th scope="col" className={`${tableStyles.num} ${styles.wide}`}>
                       Open tasks
                     </th>
                   </tr>
@@ -178,6 +178,9 @@ export function Queue() {
                       <td className={tableStyles.primaryCell}>
                         <Link href={`/referrals/${r.id}`}>{r.patient_name}</Link>
                         <span className={tableStyles.sub}>MRN {r.patient_ehr_id}</span>
+                        <span className={`${tableStyles.sub} ${styles.narrowOnly}`}>
+                          {label(SPECIALTY_LABEL, r.specialty)}, {r.owner_name ?? "unassigned"}
+                        </span>
                       </td>
                       <td>
                         <div className={styles.routeCell}>
@@ -185,7 +188,7 @@ export function Queue() {
                           <StatusBadge status={r.status} />
                         </div>
                       </td>
-                      <td>
+                      <td className={styles.wide}>
                         {label(SPECIALTY_LABEL, r.specialty)}
                         {r.priority_from_source !== "routine" && (
                           <span className={tableStyles.sub}>
@@ -193,9 +196,9 @@ export function Queue() {
                           </span>
                         )}
                       </td>
-                      <td>{r.owner_name ?? <span className={styles.unassigned}>Unassigned</span>}</td>
+                      <td className={styles.wide}>{r.owner_name ?? <span className={styles.unassigned}>Unassigned</span>}</td>
                       <td className={tableStyles.num}>{r.age_days} d</td>
-                      <td className={tableStyles.num}>{r.open_tasks || "—"}</td>
+                      <td className={`${tableStyles.num} ${styles.wide}`}>{r.open_tasks || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

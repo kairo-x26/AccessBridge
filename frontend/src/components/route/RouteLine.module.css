@@ -54,3 +54,9 @@
   stroke-width: 2.4;
   stroke-linecap: round;
 }
+@media (max-width: 640px) {
+  .mini {
+    width: 112px;
+    height: auto;
+  }
+}

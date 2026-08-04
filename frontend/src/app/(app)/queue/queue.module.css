@@ -75,3 +75,14 @@
     grid-column: 1 / -1;
   }
 }
+.narrowOnly {
+  display: none;
+}
+@media (max-width: 640px) {
+  .wide {
+    display: none;
+  }
+  .narrowOnly {
+    display: block;
+  }
+}
