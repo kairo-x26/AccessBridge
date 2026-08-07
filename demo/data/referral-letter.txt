@@ -1,0 +1,15 @@
+RIVERBEND COMMUNITY HEALTH — SPECIALTY REFERRAL
+
+Patient Name: Marcus Ellery
+Date of Birth: 1964-08-30
+MRN: 560019
+Phone: +1 555 010 3344
+Insurance: Medicaid — Plan ID MCD-448812
+Member ID: MBR-55120934
+Referring Provider: Dr. Amara Okafor
+Referring NPI: 1457382913
+Specialty Requested: Gastroenterology
+Reason for Referral: Chronic abdominal pain
+Diagnosis Code: I10
+
+Signed electronically.

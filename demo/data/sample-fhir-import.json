@@ -1,0 +1,117 @@
+{
+  "bundle": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Patient",
+          "id": "pt-560019",
+          "identifier": [
+            {
+              "system": "urn:riverbend:mrn",
+              "value": "560019"
+            }
+          ],
+          "name": [
+            {
+              "family": "Ellery",
+              "given": [
+                "Marcus"
+              ]
+            }
+          ],
+          "birthDate": "1964-08-30",
+          "telecom": [
+            {
+              "system": "phone",
+              "value": "+1 555 010 3344"
+            }
+          ],
+          "communication": [
+            {
+              "language": {
+                "coding": [
+                  {
+                    "code": "en"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "DocumentReference",
+          "id": "SR-SAMPLE-001-doc0",
+          "status": "current",
+          "content": [
+            {
+              "attachment": {
+                "contentType": "text/plain",
+                "title": "referral-letter.txt",
+                "data": "UklWRVJCRU5EIENPTU1VTklUWSBIRUFMVEgg4oCUIFNQRUNJQUxUWSBSRUZFUlJBTAoKUGF0aWVudCBOYW1lOiBNYXJjdXMgRWxsZXJ5CkRhdGUgb2YgQmlydGg6IDE5NjQtMDgtMzAKTVJOOiA1NjAwMTkKUGhvbmU6ICsxIDU1NSAwMTAgMzM0NApJbnN1cmFuY2U6IE1lZGljYWlkIOKAlCBQbGFuIElEIE1DRC00NDg4MTIKTWVtYmVyIElEOiBNQlItNTUxMjA5MzQKUmVmZXJyaW5nIFByb3ZpZGVyOiBEci4gQW1hcmEgT2thZm9yClJlZmVycmluZyBOUEk6IDE0NTczODI5MTMKU3BlY2lhbHR5IFJlcXVlc3RlZDogR2FzdHJvZW50ZXJvbG9neQpSZWFzb24gZm9yIFJlZmVycmFsOiBDaHJvbmljIGFiZG9taW5hbCBwYWluCkRpYWdub3NpcyBDb2RlOiBJMTAKClNpZ25lZCBlbGVjdHJvbmljYWxseS4="
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "DocumentReference",
+          "id": "SR-SAMPLE-001-doc1",
+          "status": "current",
+          "content": [
+            {
+              "attachment": {
+                "contentType": "text/plain",
+                "title": "visit-note.txt",
+                "data": "UHJvZ3Jlc3Mgbm90ZQpBc3Nlc3NtZW50OiBhYmRvbWluYWwgcGFpbgpQbGFuOiBHSSByZWZlcnJhbA=="
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "ServiceRequest",
+          "id": "SR-SAMPLE-001",
+          "status": "active",
+          "intent": "order",
+          "priority": "routine",
+          "code": {
+            "text": "Gastroenterology consult"
+          },
+          "subject": {
+            "reference": "Patient/pt-560019"
+          },
+          "requester": {
+            "display": "Dr. Amara Okafor"
+          },
+          "reasonCode": [
+            {
+              "text": "Chronic abdominal pain"
+            }
+          ],
+          "supportingInfo": [
+            {
+              "reference": "DocumentReference/SR-SAMPLE-001-doc0"
+            },
+            {
+              "reference": "DocumentReference/SR-SAMPLE-001-doc1"
+            }
+          ],
+          "performer": [
+            {
+              "display": "Northgate GI Partners",
+              "identifier": {
+                "value": "NPI-NGI"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

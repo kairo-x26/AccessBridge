@@ -1,0 +1,5 @@
+source_id,ehr_patient_id,given_name,family_name,birth_date,phone,preferred_language,specialty,priority,reason,referring_clinician,provider_name
+CSV-0001,570001,Hana,Okoye,1981-04-11,+1 555 010 4101,en,Dermatology,routine,Changing mole on back,Dr. Amara Okafor,Lakeside Dermatology
+CSV-0002,570002,Jorge,Salinas,1959-12-03,+1 555 010 4102,es,Ophthalmology,routine,Diabetic eye exam,Dr. Amara Okafor,Clearview Eye Center
+CSV-0003,570003,Wen,Liu,1990-06-27,,en,Neurology,urgent,New onset seizures,Dr. Amara Okafor,Cedar Neurology Group
+CSV-0004,570004,Patrice,Boateng,02/14/1975,+1 555 010 4104,en,Orthopedics,routine,Knee pain,Dr. Amara Okafor,Summit Orthopedics
