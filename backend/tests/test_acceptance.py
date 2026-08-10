@@ -343,19 +343,32 @@ def test_every_external_action_is_attributable(client):
                 AgentAction.external.is_(True), AgentAction.status == "succeeded"
             )
         ).all()
-        assert actions
+        all_external = [
+            (a.tool, a.status, a.decision, a.error)
+            for a in s.scalars(select(AgentAction).where(AgentAction.external.is_(True)))
+        ]
+        assert actions, f"no succeeded external action; external actions: {all_external}"
         for a in actions:
-            assert a.authorized_by and a.authorized_by.startswith("approval:")
-            assert ":user:" in a.authorized_by and a.result and a.executed_at
-            ev = s.scalar(
+            facts = {
+                "tool": a.tool,
+                "authorized_by": a.authorized_by,
+                "result": a.result,
+                "executed_at": a.executed_at,
+            }
+            assert a.authorized_by and a.authorized_by.startswith("approval:"), facts
+            assert ":user:" in a.authorized_by and a.result and a.executed_at, facts
+            events = s.scalars(
                 select(AuditEvent).where(
                     AuditEvent.resource_ref == a.id, AuditEvent.operation == "agent.action"
                 )
-            )
-            assert ev.actor.startswith("agent:")
-            assert ev.details["authorized_by"] == a.authorized_by
-            assert "result" in ev.details
+            ).all()
+            done = [e for e in events if e.outcome == "success"]
+            assert len(done) == 1, [(e.outcome, e.details) for e in events]
+            assert done[0].actor.startswith("agent:"), done[0].actor
+            assert done[0].details["authorized_by"] == a.authorized_by, done[0].details
+            assert "result" in done[0].details, done[0].details
         decided = s.scalars(
             select(AuditEvent).where(AuditEvent.operation == "approval.approved")
         ).all()
-        assert {e.details["action_id"] for e in decided} >= {a.id for a in actions}
+        approved_ids = {e.details["action_id"] for e in decided}
+        assert approved_ids >= {a.id for a in actions}, (approved_ids, [a.id for a in actions])
