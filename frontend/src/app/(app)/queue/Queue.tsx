@@ -40,6 +40,11 @@ export function Queue() {
   const [q, setQ] = useState(params.get("q") ?? "");
   const [importing, setImporting] = useState(false);
 
+  // Roles without referral access (security administrators) start on their own work instead.
+  useEffect(() => {
+    if (me && !can(me, "referral:read")) router.replace(can(me, "audit:read") ? "/audit" : "/account");
+  }, [me, router]);
+
   function setParam(updates: Record<string, string | null>) {
     const next = new URLSearchParams(params.toString());
     for (const [k, v] of Object.entries(updates)) {

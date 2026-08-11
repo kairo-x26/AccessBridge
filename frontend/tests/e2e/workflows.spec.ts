@@ -89,3 +89,13 @@ test("an administrator invites a navigator who can then sign in", async ({ page,
   await expect(fresh.getByRole("heading", { name: "You’re in" })).toBeVisible();
   await fresh.close();
 });
+
+test("a security administrator lands on the audit log", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Organization").fill("riverbend");
+  await page.getByLabel("Email").fill(USERS.security);
+  await page.getByLabel("Password").fill("Demo-Password-2026");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/audit/);
+  await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
+});
