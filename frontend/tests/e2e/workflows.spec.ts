@@ -99,3 +99,16 @@ test("a security administrator lands on the audit log", async ({ page }) => {
   await expect(page).toHaveURL(/\/audit/);
   await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
 });
+
+test.describe("dark mode", () => {
+  test.use({ colorScheme: "dark" });
+
+  test("key screens have no WCAG 2.2 AA violations in dark mode", async ({ page }) => {
+    await signIn(page, USERS.admin);
+    for (const path of ["/queue?view=all", "/approvals", "/dashboard", "/policies", "/admin?tab=organization"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      expect(await axe(page), path).toEqual([]);
+    }
+  });
+});

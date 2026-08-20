@@ -117,3 +117,29 @@ notes.
 Live PHI, real EHR vendor connections, real SMS delivery, voice automation (FR-16),
 insurance eligibility (FR-22), Terraform deployment to AWS. Interfaces exist where a
 later adapter would plug in.
+
+## Status
+
+All phases are complete. Each ended with its tests passing; the commit history follows the
+phases above.
+
+| Phase | Delivered | Evidence |
+|---|---|---|
+| 0 Foundations | Backend scaffold, structured logging with PHI redaction, CI | `backend/app/core`, `.github/workflows/ci.yml` |
+| 1 Identity, tenancy, audit | MFA, RBAC, invitations, lockout, tenant scoping, audit log | `test_auth.py`, `test_tenancy_and_rbac.py` |
+| 2 Referral core | State machine, FHIR/CSV intake, tasks, reconciliation | `test_state_machine.py` (exhaustive), `test_reconciliation.py` |
+| 3 Document intelligence | Grounded extraction, checklists, package approval, evaluation harness | `test_document_ai.py`, `test_review_api.py` |
+| 4 Agents | Job queue, LLM gateway, tools, policy engine, approvals | `test_agents.py`, `test_queue.py` |
+| 5 Communication & outcomes | Templates, consent, signed webhooks, reply escalation, completion | `test_messaging.py` |
+| 6 Operations app | Design system, route line, all screens, unit + e2e + axe tests | `frontend/tests` |
+| 7 Policies, reports, configuration | Policy assistant, CSV export, admin console | `test_policies.py` |
+| 8 Hardening | Rate limits, headers, metrics, retention, migrations, PostgreSQL CI, latency, acceptance suite, containers | `test_hardening.py`, `test_acceptance.py`, `tests/perf` |
+| 9 Demo and guides | One-command demo, narrated scenario, sample data, nine guides | `demo/`, `docs/` |
+
+Deviations from the original plan:
+
+* The operations dashboard's metrics API moved forward into phase 6 because the frontend
+  needed it.
+* Temporal was replaced by a database-backed queue behind the same seam, as decided at the
+  start.
+* OCR, real vendor integrations and voice outreach (FR-16) remain out of scope, as planned.
