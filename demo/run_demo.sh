@@ -15,6 +15,14 @@ need() { command -v "$1" >/dev/null || { echo "Install $1 first (see docs/DEVELO
 need uv
 need pnpm
 
+# A second copy would reseed the database underneath the running one.
+for port in 8000 3000; do
+  if lsof -ti "tcp:${port}" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Port ${port} is already in use. Is the demo already running? Stop it first (Ctrl+C in its terminal)."
+    exit 1
+  fi
+done
+
 cd "$ROOT/backend"
 uv sync --quiet --all-extras
 if [[ "${1:-}" != "--keep" ]]; then
@@ -27,7 +35,17 @@ cd "$ROOT/frontend"
 pnpm install --silent --frozen-lockfile
 
 pids=()
-cleanup() { echo; echo "Stopping demo…"; kill "${pids[@]}" 2>/dev/null || true; }
+# uv and pnpm start the real servers as grandchildren, so stop each child's whole tree.
+killtree() {
+  local child
+  for child in $(pgrep -P "$1" 2>/dev/null); do killtree "$child"; done
+  kill -TERM "$1" 2>/dev/null || true
+}
+cleanup() {
+  trap - EXIT INT TERM
+  echo; echo "Stopping demo…"
+  for pid in "${pids[@]}"; do killtree "$pid"; done
+}
 trap cleanup EXIT INT TERM
 
 (cd "$ROOT/backend" && uv run uvicorn app.main:app --port 8000 --log-level warning) & pids+=($!)
